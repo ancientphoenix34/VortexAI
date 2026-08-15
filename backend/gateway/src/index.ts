@@ -5,12 +5,14 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import protect from '../middleware/auth.middleware.js';
 import { getCurrentUser } from '../controller/user.controller.js';
+import { proxyWithHeader } from '../utils/proxyWithHeader.js';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const AUTH_SERVICE = process.env.AUTH_SERVICE || 'http://localhost:5001';
-
+const CHAT_SERVICE=process.env.CHAT_SERVICE || 'http://localhost:5002';
+const AGENT_SERVICE=process.env.AGENT_SERVICE || 'http://localhost:5004';
 const app: Express = express();
 
 app.use(
@@ -22,6 +24,8 @@ app.use(
 
 app.use(cookieParser());
 app.use('/api/auth', proxy(AUTH_SERVICE));
+app.use('/api/chat',protect, proxyWithHeader(CHAT_SERVICE));
+app.use('/api/agent',protect, proxy(AGENT_SERVICE));
 app.get('/api/me', protect, getCurrentUser);
 
 app.listen(PORT, () => {
