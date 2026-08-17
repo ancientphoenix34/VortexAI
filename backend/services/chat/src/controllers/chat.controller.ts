@@ -95,7 +95,7 @@ export const getMessages = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const messages = await Message.find({ conversationId }).sort({ createdAt: 1 });
+    const messages = await Message.find({ conversationId });
 
     res.status(200).json(messages);
   } catch (error: any) {
