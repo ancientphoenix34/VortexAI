@@ -6,7 +6,7 @@ export const Agent = async (req: Request, res: Response): Promise<void> => {
   try {
     const { prompt, conversationId } = req.body;
 
-    await axios.post(`${process.env.CHAT_SERVICE}/saveMessage`, {
+    await axios.post(`${process.env.CHAT_SERVICE}/save-message`, {
       conversationId,
       role: 'user',
       content: prompt,
@@ -15,7 +15,11 @@ export const Agent = async (req: Request, res: Response): Promise<void> => {
     const result = await graph.invoke({ prompt, conversationId });
 
     const response = result.aiResponse;
-
+    await axios.post(`${process.env.CHAT_SERVICE}/save-message`, {
+      conversationId,
+      role: 'assistant',
+      content: response,
+    });
     res.status(200).json({ response });
   } catch (error: any) {
     console.error('Error in Agent controller:', error);
