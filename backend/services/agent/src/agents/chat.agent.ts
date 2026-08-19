@@ -1,5 +1,7 @@
 import { agentState } from '../graph/state.js';
 import { getModel } from '../config/llmModels.js';
+import { getMemory } from '../config/memory.js';
+import { SystemMessage, HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
 
 export const chatAgent = async (state: typeof agentState.State) => {
   try {
@@ -23,16 +25,22 @@ Formatting:
 - Never write headings and content on the same line.
 - Never generate large walls of text.`;
 
-    const response = await llm.invoke([
-      {
-        role: 'system',
-        content: systemPrompt,
-      },
-      {
-        role: 'human',
-        content: state.prompt,
-      },
-    ]);
+    const history = await getMemory(state.conversationId);
+
+    const messages: BaseMessage[] = [new SystemMessage(systemPrompt)];
+
+    history.forEach((msg: { role: string; content: string }) => {
+      if (msg.role === 'user') {
+        messages.push(new HumanMessage(msg.content));
+      }
+      if (msg.role === 'assistant') {
+        messages.push(new AIMessage(msg.content));
+      }
+    });
+
+    messages.push(new HumanMessage(state.prompt));
+
+    const response = await llm.invoke(messages);
 
     return {
       ...state,
@@ -43,4 +51,5 @@ Formatting:
     throw error;
   }
 };
+
 
