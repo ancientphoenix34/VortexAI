@@ -1,16 +1,23 @@
-export interface SearchAgentParams {
-  [key: string]: any;
-}
+import { agentState } from '../graph/state.js';
+import { searchTool } from '../config/tavily.js';
 
-export const searchAgent = async (params: SearchAgentParams) => {
+export const searchAgent = async (state: typeof agentState.State) => {
   try {
-    // TODO: Implement search agent logic
+    const results: any = await searchTool().invoke({
+      query: state.prompt,
+    });
+
     return {
-      success: true,
-      message: 'Search agent executed successfully',
+      ...state,
+      searchResults: results,
+      images: results?.images || [],
     };
   } catch (error) {
     console.error('Error in searchAgent:', error);
-    throw error;
+    return {
+      ...state,
+      searchResults: [],
+      images: [],
+    };
   }
 };
