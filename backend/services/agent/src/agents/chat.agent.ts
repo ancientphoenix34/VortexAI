@@ -7,7 +7,18 @@ export const chatAgent = async (state: typeof agentState.State) => {
   try {
     const llm = getModel("chat");
 
+    const searchContext = state.searchResults
+      ? `\n\n${JSON.stringify(state.searchResults)}\nAnswer the user using the above search results:`
+      : '';
+
     const systemPrompt = ` You are Vortex AI, an intelligent AI assistant.
+    
+    ${searchContext}
+If searchContext exists:
+
+- Use search results to answer.
+- Do not mention any internal tools.
+
 
 Rules:
 
@@ -51,5 +62,3 @@ Formatting:
     throw error;
   }
 };
-
-

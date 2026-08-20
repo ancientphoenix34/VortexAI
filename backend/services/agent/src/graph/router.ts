@@ -3,6 +3,13 @@ import { getModel } from '../config/llmModels.js';
 
 export const router = async (state: typeof agentState.State) => {
     try {
+        if (state.agent && state.agent.toLowerCase() !== 'auto') {
+            return {
+                ...state,
+                agent: state.agent.toLowerCase(),
+            };
+        }
+
         const llm = getModel("router");
 
         const prompt = `You are an agent router                                                                    Available agents:

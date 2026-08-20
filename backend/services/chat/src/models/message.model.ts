@@ -4,6 +4,7 @@ export interface IMessage extends Document {
   conversationId: mongoose.Types.ObjectId;
   role: 'user' | 'assistant';
   content: string;
+  images?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,6 +25,10 @@ const messageSchema = new Schema<IMessage>(
       type: String,
       required: true,
     },
+    images: {
+      type: [String],
+      default: [],
+    }, 
   },
   {
     timestamps: true,
