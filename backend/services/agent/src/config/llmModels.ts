@@ -18,7 +18,7 @@ const getOpenAI = () => {
 const getAnthropic = () => {
   if (!anthropic) {
     anthropic = new ChatAnthropic({
-      model: "claude-3-5-sonnet-latest",
+      model: "claude-4-5-haiku",
       temperature: 0.3,
       apiKey: process.env.ANTHROPIC_API_KEY,
     });

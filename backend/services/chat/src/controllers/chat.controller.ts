@@ -68,13 +68,14 @@ export const updateConversation = async (req: Request, res: Response): Promise<v
 
 export const saveMessage = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { conversationId, role, content, images } = req.body;
+    const { conversationId, role, content, images, artifacts } = req.body;
 
     const message = await Message.create({
       conversationId,
       role,
       content,
-      images
+      images,
+      artifacts,
     });
 
     res.status(200).json(message);

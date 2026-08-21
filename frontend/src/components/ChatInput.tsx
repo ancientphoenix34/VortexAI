@@ -49,7 +49,7 @@ const ChatInput = () => {
 
         const data = await sendMessage(payload);
         if (data?.response) {
-            dispatch(addMessage({ role: "assistant", content: data.response, images: data.images }));
+            dispatch(addMessage({ role: "assistant", content: data.response, images: data.images, artifacts: data.artifacts }));
         }
     };
 
@@ -67,8 +67,8 @@ const ChatInput = () => {
                                 key={agent.id}
                                 onClick={() => setSelectedAgent(agent.label)}
                                 className={`flex-shrink-0 cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium border transition-all ${isActive
-                                        ? "bg-gradient-to-r from-indigo-500 to-violet-600 text-white border-transparent shadow-[0_1px_8px_rgba(99,102,241,.35)]"
-                                        : "bg-white/[0.03] text-slate-400 border-white/[0.06] hover:bg-white/[0.07]"
+                                    ? "bg-gradient-to-r from-indigo-500 to-violet-600 text-white border-transparent shadow-[0_1px_8px_rgba(99,102,241,.35)]"
+                                    : "bg-white/[0.03] text-slate-400 border-white/[0.06] hover:bg-white/[0.07]"
                                     }`}
                             >
                                 <Icon size={14} className={isActive ? "text-white" : "text-slate-500"} />
