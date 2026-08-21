@@ -13,18 +13,20 @@ const ChatArea = () => {
   useEffect(() => {
     if (selectedConversation?._id) {
       const fetchMessages = async () => {
-        if(selectedConversation.title=="New Chat")return;
+        if (selectedConversation.title == "New Chat") return;
         const data = await getMessages(selectedConversation._id)
         if (data) {
           dispatch(setMessages(data))
         }
       }
       fetchMessages()
+    } else {
+      dispatch(setMessages([]))
     }
   }, [selectedConversation?._id, dispatch])
 
   return (
-    <div className='flex-1 flex flex-col '>
+    <div className='flex-1 flex flex-col min-w-0'>
       <Nav/>
       <MessageList/>
       <ChatInput/>
