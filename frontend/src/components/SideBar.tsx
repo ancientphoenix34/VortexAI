@@ -3,6 +3,7 @@ import { PanelLeft as PanelLeftIcon, PanelRight, PenSquare, Plus, MessageSquare,
 import { useDispatch, useSelector } from 'react-redux'
 import { getConversation } from '../features/getConversation'
 import { setConversation, addConversation, setSelectedConversation } from '../redux/conversationSlice'
+import { setMessages } from '../redux/messageSlice'
 import { createConversation } from '../features/createConversation'
 import { logOut } from '../features/logOut'
 import { setUserData } from '../redux/userSlice'
@@ -22,9 +23,14 @@ const SideBar = () => {
         getConv()
     }, [dispatch, userData?._id])
 
-    const handleCreateConversation = async () => {
-        const data = await createConversation()
-        dispatch(addConversation(data))
+    const handleNewChat = () => {
+        dispatch(setSelectedConversation(null))
+        dispatch(setMessages([]))
+    }
+
+    const handleSelectConv = (conv: any) => {
+        dispatch(setSelectedConversation(conv))
+        dispatch(setMessages([]))
     }
 
     const handleLogOut = async () => {
@@ -43,7 +49,7 @@ const SideBar = () => {
 
                 <button
                 className='flex items-center justify-center w-9 h-9 rounded-xl text-slate-500 hover:text-slate-200 hover:bg-white/[0.05] transition-colors duration-150 bg-transparent border-none cursor-pointer'
-                onClick={()=>dispatch(setSelectedConversation(null))}
+                onClick={handleNewChat}
                 >
                     <Plus size={17}/>
                 </button>
@@ -53,7 +59,7 @@ const SideBar = () => {
                         const isActive=selectedConversation?._id==conv?._id
                         return (
                             <div
-                                onClick={()=>dispatch(setSelectedConversation(conv))}
+                                onClick={()=>handleSelectConv(conv)}
                                 className={`flex items-center gap-2.5 cursor-pointer mb-0.5 px-3 py-2.5 rounded-[10px] border transition-colors duration-150 ${isActive ? "bg-indigo-500/10 border-indigo-500/[0.18]" : "bg-transparent border-transparent"}`}
                             >
                                 <div className={`flex items-center justify-center shrink-0 w-[20px] h-[20px] rounded-lg transition-colors duration-150 ${isActive ? "bg-indigo-500/15 text-indigo-400" : "bg-white/[0.05] text-slate-500"}`}>
@@ -101,7 +107,7 @@ const SideBar = () => {
                         free
                     </span>
                     <button 
-                        onClick={()=>dispatch(setSelectedConversation(null))}
+                        onClick={handleNewChat}
                         className='flex items-center justify-center w-7 h-7 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/[0.05] transition-colors duration-150 bg-transparent border-none cursor-pointer'
                     >
                         <PenSquare size={14} />
@@ -110,7 +116,7 @@ const SideBar = () => {
 
                 <div className='px-4 pt-4 pb-1'>
                     <button 
-                        onClick={()=>dispatch(setSelectedConversation(null))}
+                        onClick={handleNewChat}
                         className='w-full flex items-center justify-center gap-2 text-sm font-medium text-white bg-linear-to-br from-indigo-500 to-violet-700 rounded-xl py-[10px] border-none cursor-pointer hover:opacity-90 transition-opacity duration-150'
                     >
                         <Plus size={15} />
@@ -136,7 +142,7 @@ const SideBar = () => {
                         const isActive=selectedConversation?._id==conv?._id
                         return (
                             <div
-                                onClick={()=>dispatch(setSelectedConversation(conv))}
+                                onClick={()=>handleSelectConv(conv)}
                                 className={`flex items-center gap-2.5 cursor-pointer mb-0.5 px-3 py-2.5 rounded-[10px] border transition-colors duration-150 ${isActive ? "bg-indigo-500/10 border-indigo-500/[0.18]" : "bg-transparent border-transparent"}`}
                             >
                                 <div className={`flex items-center justify-center shrink-0 w-[28px] h-[28px] rounded-lg transition-colors duration-150 ${isActive ? "bg-indigo-500/15 text-indigo-400" : "bg-white/[0.05] text-slate-500"}`}>
