@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
+import { title } from 'process';
 
 export interface IFile {
   name: string;
@@ -31,6 +32,7 @@ const fileSchema = new mongoose.Schema({
 const artifactSchema = new mongoose.Schema({
   id: Number,
   type: String,
+  title:String,
   files: [fileSchema]
 }, {
   _id: false
