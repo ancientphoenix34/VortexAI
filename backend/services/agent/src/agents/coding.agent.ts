@@ -1,6 +1,25 @@
 import { agentState } from '../graph/state.js';
 import { getModel } from '../config/llmModels.js';
 
+function extractJson(text: string): string {
+  let trimmed = text.trim();
+
+  // Strip a ```json ... ``` or ``` ... ``` wrapper if present
+  const fenceMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  if (fenceMatch) {
+    trimmed = fenceMatch[1].trim();
+  }
+
+  // Fallback: grab from the first { to the last } in case of stray text
+  const start = trimmed.indexOf('{');
+  const end = trimmed.lastIndexOf('}');
+  if (start !== -1 && end !== -1 && end > start) {
+    trimmed = trimmed.slice(start, end + 1);
+  }
+
+  return trimmed;
+}
+
 export const codingAgent = async (state: typeof agentState.State) => {
   try {
     const llm = await getModel("coding");
@@ -81,17 +100,18 @@ User Request:
 ${state.prompt}`;
 
       const res = await llm.invoke(prompt);
-      const content=JSON.parse(res.content as string);
+      const content = JSON.parse(extractJson(res.content as string));
       return {
         ...state,
-        aiResponse:"Code generated successfully",
-        artifacts:[{
-          id:Date.now(),
-          type:"Project",
-          files:content.files || []
+        aiResponse: "Code generated successfully",
+        artifacts: [{
+          id: Date.now(),
+          type: "Project",
+          files: content.files || [],
+          title: state.prompt
         }]
       };
-    } 
+    }
 
     const res = await llm.invoke(`The user's request is:
 
@@ -119,12 +139,12 @@ User Request:
 
 ${state.prompt}`);
 
-const data=res.content;
+    const data = res.content;
 
     return {
       ...state,
-      aiResponse:data,
-      artifacts:[]
+      aiResponse: data,
+      artifacts: []
     };
   } catch (error) {
     console.error('Error in codingAgent:', error);
