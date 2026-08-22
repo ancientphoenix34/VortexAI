@@ -19,7 +19,7 @@ const ChatInput = () => {
         { id: 'coding', icon: Code2, label: 'Coding' },
         { id: 'pdf', icon: FileText, label: 'PDF' },
         { id: 'ppt', icon: Presentation, label: 'PPT' },
-        { id: 'image', icon: Image, label: 'Image' },
+        { id: 'vision', icon: Image, label: 'Vision' },
         { id: 'search', icon: Globe, label: 'Search' },
     ];
 
