@@ -12,54 +12,25 @@ export const router = async (state: typeof agentState.State) => {
 
         const llm = getModel("router");
 
-        const prompt = `You are an agent router                                                                    Available agents:
+        const prompt = `You are an agent router.
 
-- chat
-- search
-- coding
-- pdf
-- ppt
-- vision
+Available agents:
+- chat: General conversation, explanations, learning, questions.
+- search: Current events, latest information, news, recent developments, internet lookup.
+- coding: Generate code, debug code, build projects, architecture, API design.
+- vision: Generate image, create image, draw image, generate picture, image requests.
+- pdf: Questions about generate PDFs or document context.
+- ppt: Questions about generate ppts or ppt context.
 
-Rules:
-
-chat:
-General conversation,
-explanations,
-learning,
-questions.
-
-search:
-Current events,
-latest information,
-news,
-recent developments,
-internet lookup.
-
-coding:
-Generate code,
-debug code,
-build projects,
-architecture,
-API design.                                                                                                                   vision:
-Generate image,                                        create image
-
-pdf:
-Questions about generate PDFs
-or document context.
-
-ppt:
-Questions about generate ppts
-or ppt context.
-
-Return ONLY one word:
-
+Return ONLY one word from this list:
 chat
 search
 coding
+vision
 pdf
+ppt
 
-User Query:                                                 ${state.prompt}`;
+User Query: ${state.prompt}`;
 
         const response = await llm.invoke(prompt);
 
@@ -72,4 +43,3 @@ User Query:                                                 ${state.prompt}`;
         throw error;
     }
 };
-
