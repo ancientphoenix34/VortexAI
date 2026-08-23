@@ -91,7 +91,7 @@ const MessageBubble = ({ role, content, images }: { role: string, content: strin
                                 alt={alt}
                                 loading="lazy"
                                 onClick={() => setLightBox(src || null)}
-                                className="max-w-full rounded-xl border border-white/10 cursor-zoom-in hover:opacity-90 transition my-2"
+                                className="w-40 h-28 rounded-xl object-cover border border-white/10 cursor-zoom-in hover:opacity-90 transition my-2"
                             />
                         ),
                         code: ({ className, children }: any) => {
