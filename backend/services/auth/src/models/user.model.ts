@@ -5,6 +5,10 @@ export interface IUser extends Document {
   name?: string;
   email?: string;
   avatar?: string;
+  plan?: string;
+  credits?: number;
+  totalCredits?: number;
+  planExpiresAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,6 +28,21 @@ const userSchema = new Schema<IUser>(
     },
     avatar: {
       type: String,
+    },
+    plan: {
+      type: String,
+      default:"free"
+    },
+    credits: {
+      type: Number,
+      default:100
+    },
+    totalCredits: {
+     type: Number,
+      default:100
+    },
+    planExpiresAt: {
+      type: Date,
     },
   },
   {

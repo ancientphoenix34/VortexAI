@@ -34,12 +34,22 @@ export const login = async (
     }
 
     const sessionId = crypto.randomUUID();
-    await redis.set(`session-${sessionId}`,
-      JSON.stringify({userId:user._id,
-        name:user.name,
-        email:user.email,
-        avatar:user.avatar
-      }),"EX",7 * 24 * 60 * 60);
+    await redis.set(`user-session-${user._id}`,sessionId,"EX",7*24*60*60);
+    await redis.set(
+      `session-${sessionId}`,
+      JSON.stringify({
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        plan: user.plan,
+        credits: user.credits,
+        totalCredits: user.totalCredits,
+        planExpiresAt: user.planExpiresAt,
+      }),
+      'EX',
+      7 * 24 * 60 * 60
+    );
 
     const cookieOptions: CookieOptions = {
       httpOnly: true,
@@ -71,4 +81,48 @@ export const logOut = async (req: Request, res: Response): Promise<Response> => 
     return res.status(500).json({ message: error.message || 'Internal server error' });
   }
 };
+
+export const updateUserPayment = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { plan, credits, userId } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.plan = plan;
+    user.credits = (user.credits || 0) + Number(credits);
+    user.totalCredits = (user.totalCredits || 0) + Number(credits);
+    user.planExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    await user.save();
+
+    const sessionId = await redis.get(`user-session-${user?._id}`) ||  req.cookies?.session;
+
+    if (sessionId) {
+      await redis.set(
+        `session-${sessionId}`,
+        JSON.stringify({
+          userId: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          plan: user.plan,
+          credits: user.credits,
+          totalCredits: user.totalCredits,
+          planExpiresAt: user.planExpiresAt,
+        }),
+        'EX',
+        7 * 24 * 60 * 60
+      );
+    }
+
+    return res.status(200).json({ success: true, message: 'plan update successful' });
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || 'Internal server error' });
+  }
+};
+
 
