@@ -29,7 +29,7 @@ app.use(cookieParser());
 app.use('/api/auth', proxy(AUTH_SERVICE));
 app.use('/api/chat', protect, proxyWithHeader(CHAT_SERVICE));
 app.use('/api/billing', protect, proxyWithHeader(BILLING_SERVICE));
-app.use('/api/agent', protect, proxy(AGENT_SERVICE));
+app.use('/api/agent', protect, proxyWithHeader(AGENT_SERVICE));
 app.get('/api/me', protect, getCurrentUser);
 
 app.listen(PORT, () => {

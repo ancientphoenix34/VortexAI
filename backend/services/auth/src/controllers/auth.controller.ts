@@ -125,4 +125,59 @@ export const updateUserPayment = async (req: Request, res: Response): Promise<Re
   }
 };
 
+export const deductCredits = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { userId, agent } = req.body;
+
+    const COST: Record<string, number> = {
+      chat: 1,
+      search: 5,
+      coding: 10,
+      pdf: 10,
+      ppt: 10,
+      vision: 10,
+    };
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    const requiredCredits = COST[agent] || 1;
+
+    if ((user.credits ?? 0) < requiredCredits) {
+      return res.status(400).json({ message: 'Not enough credits' });
+    }
+
+    user.credits = (user.credits ?? 0) - requiredCredits;
+    await user.save();
+
+    const sessionId = (await redis.get(`user-session-${user._id}`)) || req.cookies?.session;
+
+    if (sessionId) {
+      await redis.set(
+        `session-${sessionId}`,
+        JSON.stringify({
+          userId: user._id,
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          plan: user.plan,
+          credits: user.credits,
+          totalCredits: user.totalCredits,
+          planExpiresAt: user.planExpiresAt,
+        }),
+        'EX',
+        7 * 24 * 60 * 60
+      );
+    }
+
+    return res.status(200).json({ success: true, message: 'Credits deducted successfully', credits: user.credits });
+  } catch (error: any) {
+    return res.status(500).json({ message: error.message || 'Internal server error' });
+  }
+};
+
+
 

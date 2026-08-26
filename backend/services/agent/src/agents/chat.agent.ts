@@ -2,6 +2,7 @@ import { agentState } from '../graph/state.js';
 import { getModel } from '../config/llmModels.js';
 import { getMemory } from '../config/memory.js';
 import { SystemMessage, HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
+import { deductCredit } from '../utils/deductCredit.js';
 
 export const chatAgent = async (state: typeof agentState.State) => {
   try {
@@ -52,6 +53,8 @@ Formatting:
     messages.push(new HumanMessage(state.prompt));
 
     const response = await llm.invoke(messages);
+
+    await deductCredit(state.userId, 'chat');
 
     return {
       ...state,

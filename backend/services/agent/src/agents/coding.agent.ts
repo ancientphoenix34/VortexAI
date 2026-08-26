@@ -1,5 +1,6 @@
 import { agentState } from '../graph/state.js';
 import { getModel } from '../config/llmModels.js';
+import { deductCredit } from '../utils/deductCredit.js';
 
 function extractJson(text: string): string {
   let trimmed = text.trim();
@@ -101,6 +102,9 @@ ${state.prompt}`;
 
       const res = await llm.invoke(prompt);
       const content = JSON.parse(extractJson(res.content as string));
+
+      await deductCredit(state.userId, 'coding');
+
       return {
         ...state,
         aiResponse: "Code generated successfully",
@@ -140,6 +144,8 @@ User Request:
 ${state.prompt}`);
 
     const data = res.content;
+
+    await deductCredit(state.userId, 'coding');
 
     return {
       ...state,

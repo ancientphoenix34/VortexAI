@@ -3,6 +3,7 @@ import { getModel } from '../config/llmModels.js';
 import { generatePPT } from '../utils/generatePpt.js';
 import { getFromS3 } from '../utils/getFromS3.js';
 import { uploadToS3 } from '../utils/uploadToS3.js';
+import { deductCredit } from '../utils/deductCredit.js';
 
 export const pptAgent = async (state: typeof agentState.State) => {
   try {
@@ -63,6 +64,8 @@ ${state.prompt}`;
     );
 
     const downloadUrl = await getFromS3(fileName, 24 * 60);
+
+    await deductCredit(state.userId, 'ppt');
 
     return {
       ...state,
