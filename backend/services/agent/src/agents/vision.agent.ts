@@ -4,6 +4,7 @@ import { agentState } from '../graph/state.js';
 import { getModel } from '../config/llmModels.js';
 import { uploadToS3 } from '../utils/uploadToS3.js';
 import { getFromS3 } from '../utils/getFromS3.js';
+import { deductCredit } from '../utils/deductCredit.js';
 
 export const visionAgent = async (state: typeof agentState.State) => {
   try {
@@ -34,6 +35,8 @@ RULES:
     await uploadToS3(fileName, buffer, "image/png");
 
     const downloadUrl = await getFromS3(fileName, 24 * 60);
+
+    await deductCredit(state.userId, 'vision');
 
     return {
       ...state,
