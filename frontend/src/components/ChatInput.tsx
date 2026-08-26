@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Paperclip, Mic, Send, Zap, MessageSquare, Code2, FileText, Presentation, Image, Globe } from 'lucide-react'
+import React, { useState, useRef } from 'react'
+import { Paperclip, Mic, Send, Zap, MessageSquare, Code2, FileText, Presentation, Image, Globe, X } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { sendMessage } from '../features/sendMessage'
 import { addMessage, setArtifacts, setMessages } from '../redux/messageSlice'
@@ -10,6 +10,8 @@ import { updateConversation } from '../features/updateConversation'
 const ChatInput = () => {
     const [value, setValue] = useState("");
     const [selectedAgent, setSelectedAgent] = useState("Auto");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const fileRef = useRef<HTMLInputElement>(null);
     const { selectedConversation } = useSelector((state: any) => state.conversation);
     const dispatch = useDispatch();
 
@@ -39,15 +41,20 @@ const ChatInput = () => {
             dispatch(setConvTitle({ title: value.trim().slice(0, 40) + "...", conversationId: conversation?._id }))
         }
         if (!value.trim()) return;
-        const payload = {
-            prompt: value.trim(),
-            conversationId: conversation?._id,
-            agent: selectedAgent.toLowerCase(),
-        };
+        const formData = new FormData();
+        formData.append("prompt", value.trim());
+        formData.append("conversationId", conversation?._id);
+        formData.append("agent", selectedAgent.toLowerCase());
+        if (selectedFile) {
+            formData.append("file", selectedFile);
+        }
+
         dispatch(addMessage({ role: "user", content: value.trim() }));
         setValue("");
+        setSelectedFile(null);
+        if (fileRef.current) fileRef.current.value = "";
 
-        const data = await sendMessage(payload);
+        const data = await sendMessage(formData);
         dispatch(setArtifacts(data?.artifacts || []))
         if (data?.response) {
             dispatch(addMessage({ role: "assistant", content: data.response, images: data.images, artifacts: data.artifacts }));
@@ -78,6 +85,35 @@ const ChatInput = () => {
                         )
                     })}
                 </div>
+
+                {selectedFile && (
+                    <div className='my-3'>
+                        <div className='inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2'>
+                            {selectedFile?.type === "application/pdf" ? (
+                                <FileText size={16} className="text-red-400" />
+                            ) : selectedFile?.type.startsWith("image/") ? (
+                                <img src={URL.createObjectURL(selectedFile)} alt="preview" className="h-10 w-10 rounded-xl object-cover mt-3" />
+                            ) : null}
+                            <div>
+                                <p className='text-xs text-white max-w-[180px] truncate'>
+                                    {selectedFile?.name}
+                                </p>
+                                <p className='text-[10px] text-slate-500'>
+                                    {Math.ceil((selectedFile?.size || 0) / 1024)} KB
+                                </p>
+                            </div>
+                            <button
+                                className='ml-2 cursor-pointer'
+                                onClick={() => {
+                                    setSelectedFile(null);
+                                    if (fileRef.current) fileRef.current.value = "";
+                                }}
+                            >
+                                <X size={14} className='text-slate-500 hover:text-white transition-colors' />
+                            </button>
+                        </div>
+                    </div>
+                )}
                 <textarea
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
@@ -87,7 +123,22 @@ const ChatInput = () => {
                 />
                 <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-1'>
-                        <button className='flex items-center justify-center w-8 h-8 rounded-lg text-slate-600 hover:text-slate-400 hover:bg-white/[0.05] border border-transparent hover:border-white/[0.06] transition-all duration-150 bg-transparent cursor-pointer'>
+                    <input
+                        type="file"
+                        accept=".pdf,image/*"
+                        hidden
+                        ref={fileRef}
+                        onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                                setSelectedFile(file);
+                            }
+                        }}
+                    />
+                        <button
+                            onClick={() => fileRef.current?.click()}
+                            className='flex items-center justify-center w-8 h-8 rounded-lg text-slate-600 hover:text-slate-400 hover:bg-white/[0.05] border border-transparent hover:border-white/[0.06] transition-all duration-150 bg-transparent cursor-pointer'
+                        >
                             <Paperclip size={16} />
                         </button>
                         <button className='flex items-center justify-center w-8 h-8 rounded-lg text-slate-600 hover:text-slate-400 hover:bg-white/[0.05] border border-transparent hover:border-white/[0.06] transition-all duration-150 bg-transparent cursor-pointer'>

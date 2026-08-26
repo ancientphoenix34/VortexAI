@@ -40,6 +40,8 @@ export const getModel = (agent: string) => {
       return getAnthropic();
     case "pdf":
       return getAnthropic();
+    case "image-analyzer":
+      return getOpenAI();
     default:
       return getOpenAI();
   }

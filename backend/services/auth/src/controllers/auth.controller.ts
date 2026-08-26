@@ -136,6 +136,8 @@ export const deductCredits = async (req: Request, res: Response): Promise<Respon
       pdf: 10,
       ppt: 10,
       vision: 10,
+      "pdf-rag": 12,
+      "image-analyzer": 12,
     };
 
     const user = await User.findById(userId);
