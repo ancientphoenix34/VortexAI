@@ -123,7 +123,7 @@ const SideBar = () => {
                             VortexAI
                         </span>
                         <span className='text-[10px] font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full tracking-wide'>
-                            free
+                            {`$${userData?.plan?.toUpperCase() || "FREE"}`}
                         </span>
                         <button
                             onClick={handleNewChat}
@@ -198,7 +198,7 @@ const SideBar = () => {
                                         {userData?.name || "user"}
                                     </p>
                                     <p className='text-[10.5px] text-slate-500 font-medium'>
-                                        {"Free Plan"}
+                                        {` ${userData?.plan?.toUpperCase() || "FREE"}`}
                                     </p>
                                 </div>
                                 <div className='flex gap-1'>
