@@ -11,6 +11,16 @@ const PORT = process.env.PORT || 5004;
 app.use(express.json());
 app.use('/', router);
 
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.log(err);
+  if (err.status) {
+    return res.status(err.status).json(err.data);
+  }
+  return res.status(500).json({
+    message: `agent error: ${err.message || err}`,
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', service: 'agent-service' });
 });

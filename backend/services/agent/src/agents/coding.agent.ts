@@ -1,6 +1,7 @@
 import { agentState } from '../graph/state.js';
 import { getModel } from '../config/llmModels.js';
 import { deductCredit } from '../utils/deductCredit.js';
+import { checkAgentLimit } from '../config/agentLimit.js';
 
 function extractJson(text: string): string {
   let trimmed = text.trim();
@@ -23,6 +24,7 @@ function extractJson(text: string): string {
 
 export const codingAgent = async (state: typeof agentState.State) => {
   try {
+    await checkAgentLimit(state.userId, 'coding');
     const llm = await getModel("coding");
     const intentLLM = await getModel("intent");
 
@@ -152,8 +154,14 @@ ${state.prompt}`);
       aiResponse: data,
       artifacts: []
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in codingAgent:', error);
+    if (error?.data?.message) {
+      return {
+        ...state,
+        aiResponse: error.data.message,
+      };
+    }
     throw error;
   }
 };

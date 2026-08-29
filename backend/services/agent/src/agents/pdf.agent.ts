@@ -4,9 +4,11 @@ import { generatePdf } from '../utils/generatePdf.js';
 import { getFromS3 } from '../utils/getFromS3.js';
 import { uploadToS3 } from '../utils/uploadToS3.js';
 import { deductCredit } from '../utils/deductCredit.js';
+import { checkAgentLimit } from '../config/agentLimit.js';
 
 export const pdfAgent = async (state: typeof agentState.State) => {
   try {
+    await checkAgentLimit(state.userId, 'pdf');
     const llm = await getModel("pdf");
 
     const prompt = `You are an expert document writer.
@@ -64,8 +66,14 @@ ${data?.title ? `**${data.title}**\n\n` : ''}📥 [Download PDF](${downloadUrl})
 
 *⏳ Link expires in 24 hours.*`
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in pdfAgent:', error);
+    if (error?.data?.message) {
+      return {
+        ...state,
+        aiResponse: error.data.message,
+      };
+    }
     return {
       ...state,
       aiResponse: "Sorry! Couldn't generate PDF at the moment."
