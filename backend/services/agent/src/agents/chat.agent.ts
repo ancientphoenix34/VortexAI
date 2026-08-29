@@ -3,10 +3,12 @@ import { getModel } from '../config/llmModels.js';
 import { getMemory } from '../config/memory.js';
 import { SystemMessage, HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
 import { deductCredit } from '../utils/deductCredit.js';
+import { checkAgentLimit } from '../config/agentLimit.js';
 
 export const chatAgent = async (state: typeof agentState.State) => {
   try {
-    const llm = getModel("chat");
+    await checkAgentLimit(state.userId, 'chat');
+    const llm = await getModel("chat");
 
     const searchContext = state.searchResults
       ? `\n\n${JSON.stringify(state.searchResults)}\nAnswer the user using the above search results:`
@@ -60,8 +62,14 @@ Formatting:
       ...state,
       aiResponse: typeof response.content === 'string' ? response.content : JSON.stringify(response.content),
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in chatAgent:', error);
+    if (error?.data?.message) {
+      return {
+        ...state,
+        aiResponse: error.data.message,
+      };
+    }
     throw error;
   }
 };

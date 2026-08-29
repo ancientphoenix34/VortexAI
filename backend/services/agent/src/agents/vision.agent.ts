@@ -5,9 +5,11 @@ import { getModel } from '../config/llmModels.js';
 import { uploadToS3 } from '../utils/uploadToS3.js';
 import { getFromS3 } from '../utils/getFromS3.js';
 import { deductCredit } from '../utils/deductCredit.js';
+import { checkAgentLimit } from '../config/agentLimit.js';
 
 export const visionAgent = async (state: typeof agentState.State) => {
   try {
+    await checkAgentLimit(state.userId, 'vision');
     const llm = await getModel("vision");
 
     const res = await llm.invoke([
@@ -48,11 +50,13 @@ RULES:
 
 ⏳ Link expires in 10 minutes.`
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in visionAgent:', error);
-    return {
-      ...state,
-      aiResponse: "❌ Failed to generate image."
-    };
+    if (error?.data?.message) {
+      return {
+        ...state,
+        aiResponse: error.data.message,
+      };
+    }
   }
 };
